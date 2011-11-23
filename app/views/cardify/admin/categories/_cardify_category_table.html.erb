@@ -1,0 +1,9 @@
+
+<% active_table_for :cardify_category_table, @tbl,
+  :actions => [['Delete','delete','Are you sure you want to delete the selected categories?']] do |t| %>
+    <% active_tr 'cardify_category', t.id do |tr| %>
+      <td><%= tr.checkbox -%></td>
+      <td><%= link_to t.name, :action => 'edit', :path => [t.id] %></td>
+      <td><%= t.description %></td>
+    <% end -%>
+<% end -%>

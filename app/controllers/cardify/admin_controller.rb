@@ -10,6 +10,9 @@ class Cardify::AdminController < ModuleController
   register_permissions :cardify, [ [ :manage, 'Manage Cardify', 'Manage Cardify' ],
                                   [ :config, 'Configure Cardify', 'Configure Cardify' ]
                                   ]
+
+  content_model :cardify
+  
   cms_admin_paths "options",
      "Cardify Options" => { :action => 'index' },
      "Options" => { :controller => '/options' },
@@ -18,6 +21,19 @@ class Cardify::AdminController < ModuleController
   permit 'cardify_config'
 
   public 
+
+  def self.get_cardify_info
+    [{ :name => 'Cardify Categories', :url => { :controller => '/cardify/admin/categories', :action => 'index' }, 
+       :permission => :cardify_manage },
+     { :name => 'Cardify Icons', :url => { :controller => '/cardify/admin/icons', :action => 'index' }, 
+       :permission => :cardify_manage },
+     { :name => 'Cardify Themes', :url => { :controller => '/cardify/admin/themes', :action => 'index' }, 
+       :permission => :cardify_manage },
+     { :name => 'Cardify Photos', :url => { :controller => '/cardify/admin/photos', :action => 'index' }, 
+       :permission => :cardify_manage }
+    ]
+  end
+
  
   def options
     cms_page_path ['Options','Modules'],"Cardify Options"

@@ -1,0 +1,9 @@
+<% active_table_for :cardify_photo_table, @tbl,
+  :actions => [['Delete','delete','Are you sure you want to delete the selected photos?']] do |t| %>
+    <% active_tr 'cardify_photo', t.id do |tr| %>
+      <td><%= tr.checkbox -%></td>   
+      <td><%= link_to image_tag(t.image.url(:photo)), :action => 'edit', :path => [ t.id ]  if t.image -%></td>
+      <td><%= t.title %></td>
+      <td><%= t.description %></td>
+    <% end -%>
+<% end -%>
