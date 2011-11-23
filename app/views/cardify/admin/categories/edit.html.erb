@@ -1,0 +1,7 @@
+<div class='admin_content'>
+  <% admin_form_for :cardify_category, @cat do |f| %>
+    <%= f.text_field :name, :size => 60 %>
+    <%= f.text_field :description, :size => 60 %>
+    <%= f.cancel_submit_buttons %>
+  <% end -%>
+</div>

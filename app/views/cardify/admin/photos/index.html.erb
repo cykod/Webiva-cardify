@@ -1,0 +1,8 @@
+<% action_panel do |p| -%>
+  <%= p.link "Add a new Photo", :action => 'edit', :icon => 'add.png' %>
+<% end -%>
+
+<div class='admin_content'>
+  <%= active_table_render :cardify_photo_table -%>
+  
+</div>

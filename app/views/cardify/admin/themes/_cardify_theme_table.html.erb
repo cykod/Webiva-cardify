@@ -1,0 +1,8 @@
+<% active_table_for :cardify_theme_table, @tbl,
+  :actions => [['Delete','delete','Are you sure you want to delete the selected themes?']] do |t| %>
+    <% active_tr 'cardify_theme', t.id do |tr| %>
+      <td><%= tr.checkbox -%></td>   
+      <td><%= link_to image_tag(t.image.url(:theme)), :action => 'edit', :path => [ t.id ]  if t.image -%></td>
+      <td><%= link_to h(t.cardify_category), :controller => '/categories', :action => 'view', :path => t.cardify_category.id if t.cardify_category %></td>
+    <% end -%>
+<% end -%>

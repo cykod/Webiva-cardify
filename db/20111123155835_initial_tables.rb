@@ -7,12 +7,12 @@ class InitialTables < ActiveRecord::Migration
     
     create_table :cardify_icons do |t|
       t.integer :image_id
-      t.integer :category_id
+      t.integer :cardify_category_id
     end
 
     create_table :cardify_themes do |t|
       t.integer :image_id
-      t.integer :category_id
+      t.integer :cardify_category_id
     end
 
     create_table :cardify_photos do |t|
@@ -20,14 +20,14 @@ class InitialTables < ActiveRecord::Migration
       t.string :title
       t.string :description
       t.integer :end_user_id
-      t.integer :theme_id
+      t.integer :cardify_theme_id
       t.string :permalink
       t.timestamps
     end
 
     create_table :cardify_icon_placements do |t|
-      t.integer :icon_id
-      t.integer :photo_id
+      t.integer :cardify_icon_id
+      t.integer :cardify_photo_id
       t.integer :x
       t.integer :y
     end

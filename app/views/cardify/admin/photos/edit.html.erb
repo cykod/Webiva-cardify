@@ -1,0 +1,9 @@
+<div class='admin_content'>
+  <% admin_form_for :cardify_photo, @photo do |f| %>
+    <%= f.filemanager_image :image_id %>
+    <%= f.text_field :title,:size => 60 %>
+    <%= f.text_field :description,:size => 60 %>
+    <%= f.text_field :permalink,:size => 60 %>
+    <%= f.cancel_submit_buttons %>
+  <% end -%>
+</div>

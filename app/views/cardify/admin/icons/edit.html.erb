@@ -1,0 +1,7 @@
+<div class='admin_content'>
+  <% admin_form_for :cardify_icon, @icon do |f| %>
+    <%= f.radio_buttons :cardify_category_id, CardifyCategory.all.collect{|cat| [cat.name, cat.id]}, :separator => "<br/>" %>
+    <%= f.filemanager_image :image_id %>
+    <%= f.cancel_submit_buttons %>
+  <% end -%>
+</div>
