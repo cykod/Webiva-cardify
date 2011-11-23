@@ -1,0 +1,280 @@
+  <!DOCTYPE HTML>
+  <html lang="en">
+  <head>
+  	<meta charset="UTF-8">
+  	<title></title>
+    <script src='js/jquery.min.js'></script>
+    <script src='js/jquery-ui.min.js'></script>
+    <script src='js/paper.js'></script>
+
+
+    <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" charset="utf-8">
+
+
+    <style>
+      .icon { float:left; }
+      #icons .icon { margin:20px; }
+
+      #container { 
+        width:950px;
+        margin:0 auto;
+        position:relative;
+
+      }
+
+      .image { position:absolute; }
+
+      .image-wrapper { position:relative; }
+
+      .controls {
+        width:16px;
+        height:16px;
+        position:absolute;
+        top:0px;
+        right:0px;
+        background:url(images/move.gif);
+
+      }
+
+      #destination { background-color:#CCC;  }
+      #instructions { width:950px; height:550px; background-color:#CCC; }
+      
+      #instructions.highlight { background-color:white; }
+    </style>
+  </head>
+  <body>
+
+  <div id='container'>
+    <div id='instructions'>
+      Drag Image Here
+    </div>
+    <canvas id='destination' width='950' height='550'></canvas>
+  </div>
+
+  <div id='icons'>
+    <div class='icon' id='icon_17'><img src='images/tree.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/snowman.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/snowflake.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/santa.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/gingerbreadman.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/rudolph.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/bird.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/dreidle.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/elf.png'/></div>
+    <div class='icon' id='icon_17'><img src='images/minora.png'/></div>
+
+  </div>
+
+<script>
+var c = $("#container");
+
+function distAngle(from,to) {
+  var diffX = to.x - from.x;
+  var diffY = to.y - from.y;
+
+  var ang = Math.atan2(diffY,diffX) / Math.PI * 180 + 45;
+  var len = Math.sqrt(diffX * diffX  + diffY * diffY);
+
+  return { angle: ang, len: len };
+}
+
+function rotateAndScale(obj,start,end) {
+
+  var startDiff = distAngle(obj.position,start);
+  var endDiff = distAngle(obj.position,end);
+
+  return { angle: endDiff.angle - startDiff.angle,
+           len: endDiff.len / startDiff.len }
+
+}
+
+paper.install(window);
+
+$(function() {
+
+
+    var inst = $("#instructions")[0];
+    
+
+    inst.addEventListener("dragenter",function(e) {
+      $(inst).addClass('highlight');
+    },true);
+
+
+    inst.addEventListener("dragenter",function(e) {
+      $(inst).removeClass('highlight');
+    },true);
+
+    inst.addEventListener("dragover",function(e) {
+      $(inst).addClass('highlight');
+      e.stopPropagation();
+      e.preventDefault();
+    },true);
+
+    inst.addEventListener("drop",function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var files = e.dataTransfer.files;
+        var count = files.length;
+
+        // Only call the handler if 1 or more files was dropped.
+        if (count > 0) {
+          handleFiles(files);
+          }
+    },false);
+
+
+    function handleFiles(files) {
+      var file = files[0];
+
+      var reader = new FileReader();
+
+      // init the reader event handlers
+      reader.onloadend = function(e) {
+          loadImage(e.target.result);
+      }
+
+      // begin the read operation
+      reader.readAsDataURL(file);
+    }
+
+
+    $("#destination").hide();
+
+
+    function loadImage(src) {
+      $("#instructions").hide();
+      $("#destination").show();
+
+      paper.setup($("#destination")[0]);
+
+      var img = new Image();
+
+      img.addEventListener('load',function() {
+
+        var bgLayer = new Layer();
+
+        var raster = new Raster(img);
+
+
+        var xscale = 950 / img.width;
+        var yscale = 550 / img.height;
+
+        var scale = yscale < xscale ? xscale : yscale;
+
+        var tool = new Tool();
+  
+        raster.scale(scale);
+
+        raster.position = view.center;
+
+        view.onFrame = function(event) {
+        view.draw();
+        }
+
+
+        var iconLayer = new Layer();
+
+        var curSel = null;
+        var curMoving = false;
+        var curScaling = false;
+        var scalepoint = null;
+        var movepoint = null;
+
+        tool.onMouseMove = function onMouseMove(event) {
+          if(curMoving) {
+            curSel.position.x += event.point.x - movepoint.x;
+            curSel.position.y += event.point.y - movepoint.y;
+            movepoint = event.point;
+          } else if(curScaling) {
+
+            var diff =rotateAndScale(curSel,scalepoint,event.point);
+
+            curSel.rotate(diff.angle);
+            curSel.scale(diff.len);
+
+            console.log(curSel.matrix.rotation);
+
+            scalepoint = event.point;
+          } else { 
+            var hitResult = iconLayer.hitTest(event.point);
+            if (hitResult && hitResult.item) {
+              if(curSel && curSel != hitResult.item) {
+                curSel.selected = false;
+              }
+              hitResult.item.selected = true;
+              curSel = hitResult.item;
+            } else {
+              if(curSel) {
+                curSel.selected = false;
+
+              }
+
+            }
+          }
+        }
+
+
+        tool.onMouseDown = function(event) {
+          if(curSel) {
+            if(event.modifiers.control || event.modifiers.shift) {
+              scalepoint = event.point;
+              curScaling = true;
+            } else {
+              movepoint = event.point;
+              project.activeLayer.appendTop(curSel);
+              curMoving = true;
+            }
+          }
+        }
+
+        tool.onMouseUp = function(event) {
+          if(curSel) {
+            curMoving = false;
+            curScaling = false;
+
+          }
+
+        }
+
+        tool.activate();
+
+
+
+        $(".icon").draggable({ revert:true, revertDuration: 0 });
+
+
+        $("#container").droppable({
+            drop: function(e,ui) {
+  
+              if(ui.draggable.hasClass("icon")) {
+                var icon = $(ui.draggable).find('img')[0];
+
+
+                var itm = new paper.Raster(icon);
+
+                var startWidth = ui.draggable.width();
+                var startHeight = ui.draggable.height();
+
+                var x = e.pageX + startWidth/2 - e.offsetX - c.offset().left;// - startWidth/2;
+                var y = e.pageY + startHeight/2 - e.offsetY - c.offset().top;//- startHeight/2;
+
+                itm.position = new paper.Point(x,y);
+
+                }
+                }
+
+                });
+
+      });
+
+      img.src=src;
+
+    }
+
+
+});
+
+</script>
+</body>
+</html>
